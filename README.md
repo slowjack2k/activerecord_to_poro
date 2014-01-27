@@ -1,4 +1,4 @@
-# ActiverecordToPoro
+# ActiverecordToPoro [![Code Climate](https://codeclimate.com/github/slowjack2k/activerecord_to_poro.png)](https://codeclimate.com/github/slowjack2k/activerecord_to_poro  ) [![Build Status](https://travis-ci.org/slowjack2k/activerecord_to_poro.png?branch=master)](https://travis-ci.org/slowjack2k/activerecord_to_poro) [![Coverage Status](https://coveralls.io/repos/slowjack2k/activerecord_to_poro/badge.png?branch=master)](https://coveralls.io/r/slowjack2k/activerecord_to_poro?branch=master) [![Gem Version](https://badge.fury.io/rb/activerecord_to_poro.png)](http://badge.fury.io/rb/activerecord_to_poro)
 
 TODO: Write a gem description
 
