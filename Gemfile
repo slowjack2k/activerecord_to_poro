@@ -6,3 +6,5 @@ gemspec
 
 gem 'simplecov', require:  false, group: :test
 gem 'coveralls', require: false
+
+gem 'yaoc', github: 'slowjack2k/yaoc', branch: 'master'

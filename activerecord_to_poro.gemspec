@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Dieter Späth"]
   spec.email         = ["shad0wrunner@gmx.de"]
   spec.summary       = %q{Convert ActiveRecord objects to plain old ruby objects and vice versa}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.description   = %q{Convert ActiveRecord objects to plain old ruby objects and vice versa}
   spec.homepage      = ""
   spec.license       = "MIT"
 
@@ -25,6 +25,10 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'activerecord'
+  spec.add_development_dependency 'database_cleaner'
+
 
   spec.add_development_dependency "rspec", "2.99.0.beta1"
   # show nicely how many specs have to be run

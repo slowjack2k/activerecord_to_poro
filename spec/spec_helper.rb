@@ -1,9 +1,6 @@
 require 'bundler/setup'
 Bundler.require(:development)
 
-require 'coveralls'
-Coveralls.wear!
-
 begin
   if ENV["COVERAGE"]
     require 'simplecov'
@@ -12,6 +9,9 @@ begin
 
       add_filter "/spec/"
     end
+  else
+    require 'coveralls'
+    Coveralls.wear!
   end
 rescue LoadError
   warn "=" * 80
@@ -19,7 +19,7 @@ rescue LoadError
   warn "=" * 80
 end
 
-require 'yaoc'
+require 'activerecord_to_poro'
 
 Dir[File.join(File.expand_path(__dir__ ), "support/**/*.rb")].each { |f| require f }
 
