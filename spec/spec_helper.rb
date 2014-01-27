@@ -2,7 +2,7 @@ require 'bundler/setup'
 Bundler.require(:development)
 
 begin
-  if ENV["COVERAGE"]
+  if ENV["SIMPLE_COVERAGE"]
     require 'simplecov'
     SimpleCov.start do
       add_group "Lib", "lib"

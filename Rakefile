@@ -8,6 +8,6 @@ task :test => :spec
 
 desc "Run RSpec with code coverage"
 task :coverage do
-  ENV['COVERAGE'] = "true"
+  ENV['SIMPLE_COVERAGE'] = "true"
   Rake::Task["spec"].execute
 end
