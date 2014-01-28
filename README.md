@@ -22,7 +22,7 @@ Or install it yourself as:
 
 roles_converter = ActiverecordToPoro::Converter.new(Role)
 salutation_converter = ActiverecordToPoro::Converter.new(Salutation)
-user_converter = ActiverecordToPoro::Converter.new(a_active_record_class, roles: roles_converter, salutation: salutation_converter)
+user_converter = ActiverecordToPoro::Converter.new(User, roles: roles_converter, salutation: salutation_converter)
 
 
 poro = user_converter.load(User.first)
