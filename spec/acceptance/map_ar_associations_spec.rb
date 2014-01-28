@@ -43,4 +43,8 @@ feature "Map active record associations", %q{
     expect(mapper.dump(poro).roles.size).to eq 2
   end
 
+  xscenario "association lazy loaded" do
+    #fail
+  end
+
 end
