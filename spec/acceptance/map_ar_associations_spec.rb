@@ -26,9 +26,19 @@ feature 'Map active record associations', %q{
     a_active_record_class.create!(name: "my name", email: "my_name@example.com").tap do |user|
       user.roles.create!(name: "admin")
       user.roles.create!(name: "guest")
+
+      user.roles.first.permissions.create!(name: "first_permission")
+      user.roles.first.permissions.create!(name: "second_permission")
+
+      user.roles.last.permissions.create!(name: "third_permission")
+
       user.salutation = Salutation.create!(name: "Mister")
 
+      user.address = Address.create!(street: 'Westminster Abbey')
+
       user.save!
+
+      user.reload
     end
   }
 
@@ -41,6 +51,7 @@ feature 'Map active record associations', %q{
   scenario "creates an ActiveRecord object from a poro object with associations set" do
     poro = mapper.load(a_active_record_object)
     expect(mapper.dump(poro).roles.size).to eq 2
+    expect(mapper.dump(poro).permissions.size).to eq 3
   end
 
   scenario "lazy loads associated objects" do

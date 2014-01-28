@@ -19,12 +19,12 @@ feature "Map active record objects", %q{
   }
 
   given(:expected_poro_class_attributes){
-    [:name, :email, :roles, :salutation]
+    [:name, :email, :roles, :salutation, :address, :permissions]
   }
 
 
   scenario "creates a poro out of an ActiveRecord object" do
-    expect(mapper.load(a_active_record_object).members).to eq expected_poro_class_attributes
+    expect(mapper.load(a_active_record_object).members.sort).to eq expected_poro_class_attributes.sort
   end
 
   scenario "creates an ActiveRecord object from a poro object" do

@@ -1,8 +1,9 @@
 class User < ActiveRecord::Base
   has_many :roles
-  belongs_to :salutation
+  has_many :permissions, through: :roles
 
-  def zz
-    ActiveRecord::Base.new
-  end
+  belongs_to :salutation
+  has_one :address
+
+
 end
