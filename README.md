@@ -1,6 +1,6 @@
 # ActiverecordToPoro [![Code Climate](https://codeclimate.com/github/slowjack2k/activerecord_to_poro.png)](https://codeclimate.com/github/slowjack2k/activerecord_to_poro  ) [![Build Status](https://travis-ci.org/slowjack2k/activerecord_to_poro.png?branch=master)](https://travis-ci.org/slowjack2k/activerecord_to_poro) [![Coverage Status](https://coveralls.io/repos/slowjack2k/activerecord_to_poro/badge.png?branch=master)](https://coveralls.io/r/slowjack2k/activerecord_to_poro?branch=master) [![Gem Version](https://badge.fury.io/rb/activerecord_to_poro.png)](http://badge.fury.io/rb/activerecord_to_poro)
 
-TODO: Write a gem description
+Final goal is a mapping of ActiveRecord-Objects to plain old ruby objects.
 
 ## Installation
 
@@ -18,7 +18,18 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+
+roles_converter = ActiverecordToPoro::Converter.new(Role)
+salutation_converter = ActiverecordToPoro::Converter.new(Salutation)
+user_converter = ActiverecordToPoro::Converter.new(a_active_record_class, roles: roles_converter, salutation: salutation_converter)
+
+
+poro = user_converter.load(User.first)
+
+
+
+```
 
 ## Contributing
 

@@ -2,12 +2,16 @@ module ActiverecordToPoro
   class Converter
     include ColumnHelper
 
-    attr_accessor :load_source_class, :dump_source_class, :association_converters
+    attr_accessor :load_source_class,
+                  :dump_source_class,
+                  :association_converters,
+                  :use_lazy_loading
 
-    def initialize(ar_class, **association_converters)
+    def initialize(ar_class, use_lazy_loading=true, **association_converters)
       self.load_source_class = ar_class
       self.dump_source_class = DefaultPoroClassBuilder.new(ar_class).()
       self.association_converters = association_converters
+      self.use_lazy_loading = use_lazy_loading
     end
 
     def load(to_convert)
@@ -36,7 +40,16 @@ module ActiverecordToPoro
 
         rule to: :_set_metadata,
              converter: ->(source, result){ fill_result_with_value(result, :_set_metadata_from_ar, source) },
-             reverse_converter: ->(source, result){ fill_result_with_value(result,:_set_metadata_to_ar, source._metadata.to_hash) }
+             reverse_converter: ->(source, result){
+
+               needs_conversion = if source.respond_to?("_needs_conversion?")
+                                    source._needs_conversion?
+                                  else
+                                    ! source.nil? #would trigger lazy loading when it is a ToProcDelegator
+                                  end
+
+               fill_result_with_value(result, :_set_metadata_to_ar, source._metadata.to_hash) if needs_conversion
+             }
       end
     end
 
@@ -44,9 +57,13 @@ module ActiverecordToPoro
       association_converters.each_pair do |association_name, association_converter|
         map_collection = self.load_source_class.reflections[association_name].collection?
 
+        lazy_quirk = self.use_lazy_loading
+
         mapper.add_mapping do
           fetcher :public_send
           rule to: association_name,
+               lazy_loading: lazy_quirk,
+               reverse_lazy_loading: false, #AR doesn't like ToProcDelegator
                object_converter: association_converter.mapper,
                is_collection: map_collection
         end

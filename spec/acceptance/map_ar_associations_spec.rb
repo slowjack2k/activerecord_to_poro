@@ -1,6 +1,6 @@
-require "acceptance_spec_helper"
+require 'acceptance_spec_helper'
 
-feature "Map active record associations", %q{
+feature 'Map active record associations', %q{
    In order to use plain old ruby objects instead of active record objects
    as a lib user
    I want to map automatically associations
@@ -43,8 +43,11 @@ feature "Map active record associations", %q{
     expect(mapper.dump(poro).roles.size).to eq 2
   end
 
-  xscenario "association lazy loaded" do
-    #fail
+  scenario "lazy loads associated objects" do
+    expect(a_active_record_object).not_to receive :salutation
+    expect(a_active_record_object).not_to receive :roles
+
+    mapper.load(a_active_record_object)
   end
 
 end
