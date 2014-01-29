@@ -11,7 +11,9 @@ guard :rspec, all_after_pass: true ,
   watch(%r{^lib/(.+)\.rb$})     { |m| "spec/unit/lib/#{m[1]}_spec.rb" }
   watch(%r{^lib/(.+)\.rb$})     { |m| "spec/integration/lib/#{m[1]}_spec.rb" }
 
-  watch('spec/spec_helper.rb')  { "spec" }
+  watch('spec/spec_helper.rb')    { "spec" }
+  watch(%r{spec/support/.+\.rb})  { "spec" }
+  watch(%r{spec/ar_support/.+\.rb})  { "spec" }
 
   watch(%r{^spec/support/(.+)\.rb$})                  { "spec" }
 
