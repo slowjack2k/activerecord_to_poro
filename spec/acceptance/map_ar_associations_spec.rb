@@ -8,7 +8,16 @@ feature 'Map active record associations', %q{
 
   given!(:mapper){
     ActiverecordToPoro::Converter.new(a_active_record_class, convert_associations: {roles: roles_converter,
-                                                                                    salutation: salutation_converter} )
+                                                                                    salutation: salutation_converter}).tap do |m|
+      quirk_converter = permissions_converter
+
+      m.extend_mapping do
+        association_rule to: :permissions,
+                         converter: quirk_converter,
+                         reverse_converter: nil,
+                         lazy_loading: true
+      end
+    end
   }
 
   given!(:roles_converter){
@@ -63,6 +72,7 @@ feature 'Map active record associations', %q{
 
   scenario "creates a poro out of an ActiveRecord object with associations set" do
     expect(mapper.load(a_active_record_object).roles.size).to eq 2
+    expect(mapper.load(a_active_record_object).permissions.size).to eq 3
     expect(mapper.load(a_active_record_object).salutation.name).to eq "Mister"
   end
 
