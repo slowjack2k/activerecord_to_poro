@@ -2,19 +2,19 @@ module ActiverecordToPoro
   module ColumnHelper
     module_function
     def columns(ar_class)
-      ar_class.column_names
+      ar_class.column_names.map &:to_sym
     end
 
     def primary_keys(ar_class)
-      [ar_class.primary_key]
+      [ar_class.primary_key].map &:to_sym
     end
 
     def association_specific_columns(ar_class)
-      ar_class.reflect_on_all_associations(:belongs_to).map(&:foreign_key)
+      ar_class.reflect_on_all_associations(:belongs_to).map(&:foreign_key).map &:to_sym
     end
 
     def associated_object_accessors(ar_class)
-      ar_class.reflections.keys
+      ar_class.reflections.keys.map &:to_sym
     end
   end
 

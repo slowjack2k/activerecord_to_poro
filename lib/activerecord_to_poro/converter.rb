@@ -5,13 +5,22 @@ module ActiverecordToPoro
     attr_accessor :load_source_class,
                   :dump_source_class,
                   :association_converters,
-                  :use_lazy_loading
+                  :use_lazy_loading,
+                  :except_attributes,
+                  :only_attributes
 
-    def initialize(ar_class, use_lazy_loading=true, **association_converters)
+    def initialize(ar_class,
+                   use_lazy_loading=true,
+                   except: nil,
+                   only: nil,
+                   load_source: nil,
+                  **association_converters)
       self.load_source_class = ar_class
-      self.dump_source_class = DefaultPoroClassBuilder.new(ar_class).()
+      self.dump_source_class = load_source || DefaultPoroClassBuilder.new(ar_class).()
       self.association_converters = association_converters
       self.use_lazy_loading = use_lazy_loading
+      self.except_attributes = Array(except)
+      self.only_attributes = only.nil? ? nil : Array(only) # an empty array can be wanted, so that there is no default mapping @ all
     end
 
     def load(to_convert)
@@ -29,10 +38,20 @@ module ActiverecordToPoro
       end
     end
 
+    def attributes_for_default_mapping
+      self.only_attributes || (
+                                columns(self.load_source_class) -
+                                primary_keys(self.load_source_class) -
+                                association_specific_columns(self.load_source_class) -
+                                associated_object_accessors(self.load_source_class) -
+                                self.except_attributes
+                              )
+    end
+
     protected
 
     def add_mapping_for_current_class(mapper)
-      tmp_quirk = plain_attributes
+      tmp_quirk = attributes_for_default_mapping
 
       mapper.add_mapping do
         fetcher :public_send
@@ -84,13 +103,6 @@ module ActiverecordToPoro
           source.send(:include, ActiverecordToPoro::MetadataToAr)
         end
       end
-    end
-
-    def plain_attributes
-      columns(self.load_source_class) -
-      primary_keys(self.load_source_class) -
-      association_specific_columns(self.load_source_class) -
-      associated_object_accessors(self.load_source_class)
     end
 
   end

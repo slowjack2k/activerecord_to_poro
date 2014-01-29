@@ -6,7 +6,7 @@ describe ActiverecordToPoro::DefaultPoroClassBuilder do
   }
 
   let(:expected_poro_class){
-    Yaoc::Helper::StructHE(:name, :email, :roles, :salutation, :address, :permissions)
+    Yaoc::Helper::StructHE(:name, :email, :roles, :salutation, :address, :permissions, :lock_version)
   }
 
   describe "#call" do
