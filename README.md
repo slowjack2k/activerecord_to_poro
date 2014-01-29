@@ -18,6 +18,8 @@ Or install it yourself as:
 
 ## Usage
 
+For uptodate doc's take a look into the specs.
+
 ```ruby
 
 roles_converter = ActiverecordToPoro::Converter.new(Role)
