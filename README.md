@@ -22,12 +22,77 @@ For uptodate doc's take a look into the specs.
 
 ```ruby
 
+# for instance you'r ActiveRecord models look like this
+
+class User  < ActiveRecord::Base
+  has_many :roles, autosave: true
+  has_many :permissions, through: :roles, autosave: true
+
+  belongs_to :salutation, autosave: true
+  has_one :address, autosave: true
+end
+
+class Role < ActiveRecord::Base
+  has_many :permissions, autosave: true
+  belongs_to :user, autosave: true
+end
+
+class Salutation < ActiveRecord::Base
+  has_many :users, autosave: true
+end
+
+class Permission < ActiveRecord::Base
+  belongs_to :role, autosave: true
+end
+
+
+# You can convert them to poro's like this (automatic genereation of a poro class out of you'r AR class)
+
 roles_converter = ActiverecordToPoro::Converter.new(Role)
 salutation_converter = ActiverecordToPoro::Converter.new(Salutation)
-user_converter = ActiverecordToPoro::Converter.new(User, roles: roles_converter, salutation: salutation_converter)
+user_converter = ActiverecordToPoro::Converter.new(User, convert_associations: {roles: roles_converter, salutation: salutation_converter})
 
 
 poro = user_converter.load(User.first)
+
+# Or with you'r custom class
+
+roles_converter = ActiverecordToPoro::Converter.new(Role,
+                                                    load_source: YourPoroClass
+                                                    )
+
+
+# default 1:1 mapping only or except
+
+roles_converter = ActiverecordToPoro::Converter.new(Role,
+                                                    except: [:lock_version]
+                                                    )
+
+roles_converter = ActiverecordToPoro::Converter.new(Role,
+                                                    only: [:name]
+                                                    )
+
+# add you'r own mapping rules
+
+roles_converter.extend_mapping do
+  rule to: :lock_version # for more look @ https://github.com/slowjack2k/yaoc
+end
+
+# new rule for faster association mapping
+
+roles_converter.extend_mapping do
+  association_rule to: association_name,
+                   lazy_loading: true,
+                   converter: association_converter
+                   # optional
+                   # from: ...,
+                   # reverse_to: ...,
+                   # reverse_from: ...,
+                   # converter: ...,  # a ActiverecordToPoro::Converter
+                   # is_collection: ..., # when for instance a scope is used or another method that delivers an ar object
+end
+
+
 
 
 
