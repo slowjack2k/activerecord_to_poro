@@ -1,4 +1,4 @@
 class Role < ActiveRecord::Base
-  has_many :permissions
-  belongs_to :user
+  has_many :permissions, autosave: true
+  belongs_to :user, autosave: true
 end
