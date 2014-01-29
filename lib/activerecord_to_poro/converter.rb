@@ -66,16 +66,7 @@ module ActiverecordToPoro
 
         rule to: :_set_metadata,
              converter: ->(source, result){ fill_result_with_value(result, :_set_metadata_from_ar, source) },
-             reverse_converter: ->(source, result){
-
-               needs_conversion = if source.respond_to?("_needs_conversion?")
-                                    source._needs_conversion?
-                                  else
-                                    ! source.nil? #would trigger lazy loading when it is a ToProcDelegator
-                                  end
-
-               fill_result_with_value(result, :_set_metadata_to_ar, source._metadata.to_hash) if needs_conversion
-             }
+             reverse_converter: ->(source, result){ result }
       end
     end
 
@@ -101,11 +92,7 @@ module ActiverecordToPoro
     end
 
     def load_source_class=(new_source)
-      @load_source_class=new_source.tap do |source|
-        unless source.respond_to? :_set_metadata_to_ar=
-          source.send(:include, ActiverecordToPoro::MetadataToAr)
-        end
-      end
+      @load_source_class=new_source
     end
 
   end

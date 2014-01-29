@@ -69,14 +69,6 @@ describe ActiverecordToPoro::Converter do
         expect(subject.dump(loaded_poro_object)).to be_kind_of ActiveRecord::Base
       end
 
-      it 'sets the primary key when it existed before' do
-        expect(subject.dump(loaded_poro_object).id).to eq ar_object.id
-      end
-
-      it 'sets new_record to false when it is an existing record' do
-        expect(subject.dump(loaded_poro_object).new_record?).to be_falsy
-      end
-
       it 'converts also associated objects' do
         count_roles = ar_object.roles.size
 

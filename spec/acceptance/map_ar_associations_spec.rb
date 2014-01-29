@@ -7,11 +7,12 @@ feature 'Map active record associations', %q{
 } do
 
   given!(:mapper){
-    ActiverecordToPoro::Converter.new(a_active_record_class, convert_associations: {roles: roles_converter, salutation: salutation_converter} )
+    ActiverecordToPoro::Converter.new(a_active_record_class, convert_associations: {roles: roles_converter,
+                                                                                    salutation: salutation_converter} )
   }
 
   given!(:roles_converter){
-    ActiverecordToPoro::Converter.new(Role)
+    ActiverecordToPoro::Converter.new(Role, convert_associations: {permissions: permissions_converter})
   }
 
   given!(:permissions_converter){
@@ -68,7 +69,9 @@ feature 'Map active record associations', %q{
   scenario "creates an ActiveRecord object from a poro object with associations set" do
     poro = mapper.load(a_active_record_object)
     expect(mapper.dump(poro).roles.size).to eq 2
-    expect(mapper.dump(poro).permissions.size).to eq 3
+
+    expect(mapper.dump(poro).roles.first.permissions.size).to eq 2
+    expect(mapper.dump(poro).roles.last.permissions.size).to eq 1
   end
 
   scenario "lazy loads associated objects" do
