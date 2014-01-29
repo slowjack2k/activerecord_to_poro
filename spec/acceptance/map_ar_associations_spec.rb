@@ -7,7 +7,7 @@ feature 'Map active record associations', %q{
 } do
 
   given!(:mapper){
-    ActiverecordToPoro::Converter.new(a_active_record_class, roles: roles_converter, salutation: salutation_converter)
+    ActiverecordToPoro::Converter.new(a_active_record_class, convert_associations: {roles: roles_converter, salutation: salutation_converter} )
   }
 
   given!(:roles_converter){

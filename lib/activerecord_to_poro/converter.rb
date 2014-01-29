@@ -14,10 +14,10 @@ module ActiverecordToPoro
                    except: nil,
                    only: nil,
                    load_source: nil,
-                  **association_converters)
+                   convert_associations: {})
       self.load_source_class = ar_class
       self.dump_source_class = load_source || DefaultPoroClassBuilder.new(ar_class).()
-      self.association_converters = association_converters
+      self.association_converters = convert_associations
       self.use_lazy_loading = use_lazy_loading
       self.except_attributes = Array(except)
       self.only_attributes = only.nil? ? nil : Array(only) # an empty array can be wanted, so that there is no default mapping @ all

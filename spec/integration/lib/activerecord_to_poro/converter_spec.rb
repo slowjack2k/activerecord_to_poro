@@ -21,7 +21,7 @@ describe ActiverecordToPoro::Converter do
 
   context 'instance methods' do
     subject!{
-      ActiverecordToPoro::Converter.new(User, roles: roles_converter, salutation: salutation_converter)
+      ActiverecordToPoro::Converter.new(User,  convert_associations: {roles: roles_converter, salutation: salutation_converter})
     }
 
     let(:roles_converter){
