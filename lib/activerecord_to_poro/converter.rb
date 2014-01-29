@@ -31,9 +31,17 @@ module ActiverecordToPoro
       mapper.dump(to_convert)
     end
 
+    def extend_mapping(&block)
+      mapper.add_mapping &block
+    end
+
+
     def mapper
       @mapper||= Yaoc::ObjectMapper.new(self.dump_source_class, self.load_source_class).tap do |mapper|
-        add_mapping_for_current_class(mapper)
+        mapper.extend ActiverecordToPoro::MapperExtension
+        mapper.fetcher(:public_send)
+
+        add_default_mapping_for_current_class(mapper)
         add_mapping_for_associations(mapper)
       end
     end
@@ -50,11 +58,10 @@ module ActiverecordToPoro
 
     protected
 
-    def add_mapping_for_current_class(mapper)
+    def add_default_mapping_for_current_class(mapper)
       tmp_quirk = attributes_for_default_mapping
 
       mapper.add_mapping do
-        fetcher :public_send
         rule to: tmp_quirk
 
         rule to: :_set_metadata,
@@ -74,17 +81,13 @@ module ActiverecordToPoro
 
     def add_mapping_for_associations(mapper)
       association_converters.each_pair do |association_name, association_converter|
-        map_collection = self.load_source_class.reflections[association_name].collection?
 
         lazy_quirk = self.use_lazy_loading
 
         mapper.add_mapping do
-          fetcher :public_send
-          rule to: association_name,
-               lazy_loading: lazy_quirk,
-               reverse_lazy_loading: false, #AR doesn't like ToProcDelegator
-               object_converter: association_converter.mapper,
-               is_collection: map_collection
+          association_rule to: association_name,
+                           lazy_loading: lazy_quirk,
+                           converter: association_converter
         end
       end
     end

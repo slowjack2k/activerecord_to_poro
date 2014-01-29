@@ -14,6 +14,10 @@ feature 'Map active record associations', %q{
     ActiverecordToPoro::Converter.new(Role)
   }
 
+  given!(:permissions_converter){
+    ActiverecordToPoro::Converter.new(Permission)
+  }
+
   given!(:salutation_converter){
     ActiverecordToPoro::Converter.new(Salutation)
   }
@@ -42,6 +46,19 @@ feature 'Map active record associations', %q{
     end
   }
 
+  given(:a_custom_poro_class){
+    ActiverecordToPoro::DefaultPoroClassBuilder.new(a_active_record_class).().tap do |new_class|
+      new_class.send(:attr_accessor, :some_other_name)
+    end
+  }
+
+  given(:mapper_with_custom_source){
+    ActiverecordToPoro::Converter.new(a_active_record_class,
+                                      load_source: a_custom_poro_class,
+                                      except: [:lock_version]
+    )
+  }
+
 
   scenario "creates a poro out of an ActiveRecord object with associations set" do
     expect(mapper.load(a_active_record_object).roles.size).to eq 2
@@ -59,6 +76,23 @@ feature 'Map active record associations', %q{
     expect(a_active_record_object).not_to receive :roles
 
     mapper.load(a_active_record_object)
+  end
+
+  scenario 'add custom association mappings' do
+    quirk_converter = permissions_converter
+
+    mapper_with_custom_source.extend_mapping do
+
+      association_rule to: :some_other_name,
+                       from: :permissions,
+                       converter: quirk_converter,
+                       lazy_loading: true
+
+    end
+
+    user_poro = mapper_with_custom_source.load(a_active_record_object)
+
+    expect(user_poro.some_other_name.size).to eq 3
   end
 
 end

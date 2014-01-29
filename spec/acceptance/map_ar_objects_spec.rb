@@ -12,7 +12,7 @@ feature "Map active record objects", %q{
 
   given(:mapper_with_custom_source){
     ActiverecordToPoro::Converter.new(a_active_record_class,
-                                      load_source: custom_target_class,
+                                      load_source: custom_poro_class,
                                       except: [:lock_version]
     )
   }
@@ -25,7 +25,7 @@ feature "Map active record objects", %q{
     a_active_record_class.create!(name: "my name", email: "my_name@example.com")
   }
 
-  given(:custom_target_class){
+  given(:custom_poro_class){
     ActiverecordToPoro::DefaultPoroClassBuilder.new(a_active_record_class).()
   }
 
@@ -39,7 +39,15 @@ feature "Map active record objects", %q{
   end
 
   scenario "use my own source class for converting ActiveRecord objects" do
-    expect(mapper_with_custom_source.load(a_active_record_object)).to be_kind_of custom_target_class
+    expect(mapper_with_custom_source.load(a_active_record_object)).to be_kind_of custom_poro_class
+  end
+
+  scenario 'extend default mapping' do
+    mapper_with_custom_source.extend_mapping do
+      rule to: :lock_version
+    end
+
+    expect(mapper.load(a_active_record_object).lock_version).to eq a_active_record_object.lock_version
   end
 
 end
