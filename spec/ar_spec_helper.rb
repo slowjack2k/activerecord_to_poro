@@ -1,8 +1,10 @@
-require 'sqlite3'
 require 'active_record'
 require 'database_cleaner'
 
 db_dir = File.join(File.expand_path(__dir__ ), "ar_support/db/")
+# ENV['DATABASE_URL']="sqlite3://localhost/:memory:?pool=5&timeout=5000"
+
+
 
 ActiveRecord::Base.establish_connection({
                                             pool: 5,

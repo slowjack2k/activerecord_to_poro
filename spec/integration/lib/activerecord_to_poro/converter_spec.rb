@@ -50,7 +50,6 @@ describe ActiverecordToPoro::Converter do
 
       it 'sets metadata for loaded objects' do
         expect(loaded_poro_object._metadata).not_to be_nil
-        expect(loaded_poro_object._metadata.primary_key_value).to eq ar_object.id
       end
 
       it 'converts also associated objects' do
@@ -62,10 +61,15 @@ describe ActiverecordToPoro::Converter do
         subject.load(ar_object)
       end
 
+      it 'fills an existing poro' do
+        poro_to_fill = subject.load_result_class.new
+        expect(subject.load(ar_object, poro_to_fill).object_id).to eq poro_to_fill.object_id
+      end
+
     end
 
     describe '#dump' do
-      it 'creates an ActiveRecordObject' do
+      it 'creates an ActiveRecord object' do
         expect(subject.dump(loaded_poro_object)).to be_kind_of ActiveRecord::Base
       end
 
@@ -73,6 +77,11 @@ describe ActiverecordToPoro::Converter do
         count_roles = ar_object.roles.size
 
         expect(subject.dump(loaded_poro_object).roles.size).to eq count_roles
+      end
+
+      it 'fills an existing ActiveRecord object' do
+        new_ar_object = User.new
+        expect(subject.dump(loaded_poro_object, new_ar_object).object_id).to eq new_ar_object.object_id
       end
     end
 

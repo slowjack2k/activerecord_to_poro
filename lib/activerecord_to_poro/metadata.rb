@@ -1,7 +1,21 @@
 module ActiverecordToPoro
-  class Metadata
-    attr_accessor :primary_key_column, :primary_key_value
+  SourceObjectInfo = Yaoc::Helper::StructHE(:class_name, :column, :value, :object_id) do
 
+    def to_hash
+      {
+       class_name: class_name,
+       primary_key: {column: column, value: value},
+       object_id: object_id
+      }
+    end
+  end
+
+  class Metadata
+    attr_accessor :source_object_info
+
+    def initialize()
+      self.source_object_info = Set.new()
+    end
 
     def initialize_from_ar(ar_object=nil)
       unless ar_object.nil?
@@ -10,12 +24,15 @@ module ActiverecordToPoro
     end
 
     def set_primary_key(ar_object)
-      self.primary_key_column = ar_object.class.primary_key
-      self.primary_key_value = ar_object.send(self.primary_key_column)
+      self.source_object_info << SourceObjectInfo.new(class_name: ar_object.class.name,
+                                                      column: ar_object.class.primary_key,
+                                                      value: ar_object.send(ar_object.class.primary_key),
+                                                      object_id: ar_object.object_id
+                                                     )
     end
 
     def to_hash
-      { self.primary_key_column => self.primary_key_value }
+      { source_objects_info: source_object_info.map(&:to_hash)  }
     end
 
   end

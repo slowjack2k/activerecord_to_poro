@@ -2,8 +2,8 @@ module ActiverecordToPoro
   class Converter
     include ColumnHelper
 
-    attr_accessor :load_source_class,
-                  :dump_source_class,
+    attr_accessor :dump_result_class,
+                  :load_result_class,
                   :association_converters,
                   :use_lazy_loading,
                   :except_attributes,
@@ -15,20 +15,20 @@ module ActiverecordToPoro
                    only: nil,
                    load_source: nil,
                    convert_associations: {})
-      self.load_source_class = ar_class
-      self.dump_source_class = load_source || DefaultPoroClassBuilder.new(ar_class).()
+      self.dump_result_class = ar_class
+      self.load_result_class = load_source || DefaultPoroClassBuilder.new(ar_class).()
       self.association_converters = convert_associations
       self.use_lazy_loading = use_lazy_loading
       self.except_attributes = Array(except)
       self.only_attributes = only.nil? ? nil : Array(only) # an empty array can be wanted, so that there is no default mapping @ all
     end
 
-    def load(to_convert)
-      mapper.load(to_convert)
+    def load(to_convert, object_to_fill=nil)
+      mapper.load(to_convert, object_to_fill)
     end
 
-    def dump(to_convert)
-      mapper.dump(to_convert)
+    def dump(to_convert, ar_object=nil)
+      mapper.dump(to_convert, ar_object)
     end
 
     def extend_mapping(&block)
@@ -37,7 +37,7 @@ module ActiverecordToPoro
 
 
     def mapper
-      @mapper||= Yaoc::ObjectMapper.new(self.dump_source_class, self.load_source_class).tap do |mapper|
+      @mapper||= Yaoc::ObjectMapper.new(self.load_result_class, self.dump_result_class).tap do |mapper|
         mapper.extend ActiverecordToPoro::MapperExtension
         mapper.fetcher(:public_send)
 
@@ -48,10 +48,10 @@ module ActiverecordToPoro
 
     def attributes_for_default_mapping
       self.only_attributes || (
-                                columns(self.load_source_class) -
-                                primary_keys(self.load_source_class) -
-                                association_specific_columns(self.load_source_class) -
-                                associated_object_accessors(self.load_source_class) -
+                                columns(self.dump_result_class) -
+                                primary_keys(self.dump_result_class) -
+                                association_specific_columns(self.dump_result_class) -
+                                associated_object_accessors(self.dump_result_class) -
                                 self.except_attributes
                               )
     end
@@ -65,7 +65,7 @@ module ActiverecordToPoro
         rule to: tmp_quirk
 
         rule to: :_set_metadata,
-             converter: ->(source, result){ fill_result_with_value(result, :_set_metadata_from_ar, source) },
+             converter: ->(source, result){ self.class.fill_result_with_value(result, :_set_metadata_from_ar, source) },
              reverse_converter: ->(source, result){ result }
       end
     end
@@ -83,16 +83,16 @@ module ActiverecordToPoro
       end
     end
 
-    def dump_source_class=(new_dump_source)
-      @dump_source_class = new_dump_source.tap do |source|
+    def load_result_class=(new_load_result)
+      @load_result_class = new_load_result.tap do |source|
         unless source.respond_to? :_metadata
           source.send(:include, MetadataEnabled)
         end
       end
     end
 
-    def load_source_class=(new_source)
-      @load_source_class=new_source
+    def dump_result_class=(new_result_class)
+      @dump_result_class=new_result_class
     end
 
   end
