@@ -9,18 +9,24 @@ module ActiverecordToPoro
                   :except_attributes,
                   :only_attributes
 
-    def initialize(ar_class,
-                   use_lazy_loading=true,
-                   except: nil,
-                   only: nil,
-                   load_source: nil,
-                   convert_associations: {})
-      self.dump_result_class = ar_class
-      self.load_result_class = load_source || DefaultPoroClassBuilder.new(ar_class).()
-      self.association_converters = convert_associations
-      self.use_lazy_loading = use_lazy_loading
-      self.except_attributes = Array(except)
-      self.only_attributes = only.nil? ? nil : Array(only) # an empty array can be wanted, so that there is no default mapping @ all
+    def self.create(ar_class,
+                    use_lazy_loading=true,
+                    except: nil,
+                    only: nil,
+                    load_source: nil,
+                    convert_associations: {})
+      new.tap do|new_mapper|
+        new_mapper.dump_result_class = ar_class
+        new_mapper.load_result_class = load_source || DefaultPoroClassBuilder.new(ar_class).()
+        new_mapper.association_converters = convert_associations
+        new_mapper.use_lazy_loading = use_lazy_loading
+        new_mapper.except_attributes = Array(except)
+        new_mapper.only_attributes = only.nil? ? nil : Array(only) # an empty array can be wanted, so that there is no default mapping @ all
+      end
+    end
+
+    class << self
+      private :new
     end
 
     def load(to_convert, object_to_fill=nil)
@@ -56,6 +62,14 @@ module ActiverecordToPoro
                               )
     end
 
+    def load_result_class=(new_load_result)
+      @load_result_class = new_load_result.tap do |source|
+        unless source.respond_to? :_metadata
+          source.send(:include, MetadataEnabled)
+        end
+      end
+    end
+
     protected
 
     def add_default_mapping_for_current_class(mapper)
@@ -81,18 +95,6 @@ module ActiverecordToPoro
                            converter: association_converter
         end
       end
-    end
-
-    def load_result_class=(new_load_result)
-      @load_result_class = new_load_result.tap do |source|
-        unless source.respond_to? :_metadata
-          source.send(:include, MetadataEnabled)
-        end
-      end
-    end
-
-    def dump_result_class=(new_result_class)
-      @dump_result_class=new_result_class
     end
 
   end

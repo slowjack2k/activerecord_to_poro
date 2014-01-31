@@ -8,28 +8,29 @@ describe ActiverecordToPoro::Converter do
     }
 
     it 'removes "except" attributes from default mapping' do
-      object = subject.new(User, except: :lock_version)
+      object = subject.create(User, except: :lock_version)
       expect(object.attributes_for_default_mapping).not_to include :lock_version
     end
 
     it 'uses "only" attributes for default mapping' do
-      object = subject.new(User, only: :id)
+      object = subject.create(User, only: :id)
       expect(object.attributes_for_default_mapping).to eq [:id]
+      binding.pry
     end
 
   end
 
   context 'instance methods' do
     subject!{
-      ActiverecordToPoro::Converter.new(User,  convert_associations: {roles: roles_converter, salutation: salutation_converter})
+      ActiverecordToPoro::Converter.create(User,  convert_associations: {roles: roles_converter, salutation: salutation_converter})
     }
 
     let(:roles_converter){
-      ActiverecordToPoro::Converter.new(Role)
+      ActiverecordToPoro::Converter.create(Role)
     }
 
     let(:salutation_converter){
-      ActiverecordToPoro::Converter.new(Salutation)
+      ActiverecordToPoro::Converter.create(Salutation)
     }
 
     let(:ar_object){

@@ -7,8 +7,8 @@ feature 'Map active record associations', %q{
 } do
 
   given!(:mapper){
-    ActiverecordToPoro::Converter.new(a_active_record_class, convert_associations: {roles: roles_converter,
-                                                                                    salutation: salutation_converter}).tap do |m|
+    ActiverecordToPoro::Converter.create(a_active_record_class, convert_associations: {roles: roles_converter,
+                                                                                       salutation: salutation_converter}).tap do |m|
       quirk_converter = permissions_converter
 
       m.extend_mapping do
@@ -21,15 +21,15 @@ feature 'Map active record associations', %q{
   }
 
   given!(:roles_converter){
-    ActiverecordToPoro::Converter.new(Role, convert_associations: {permissions: permissions_converter})
+    ActiverecordToPoro::Converter.create(Role, convert_associations: {permissions: permissions_converter})
   }
 
   given!(:permissions_converter){
-    ActiverecordToPoro::Converter.new(Permission)
+    ActiverecordToPoro::Converter.create(Permission)
   }
 
   given!(:salutation_converter){
-    ActiverecordToPoro::Converter.new(Salutation)
+    ActiverecordToPoro::Converter.create(Salutation)
   }
 
   given!(:a_active_record_class){
@@ -63,9 +63,9 @@ feature 'Map active record associations', %q{
   }
 
   given(:mapper_with_custom_source){
-    ActiverecordToPoro::Converter.new(a_active_record_class,
-                                      load_source: a_custom_poro_class,
-                                      except: [:lock_version]
+    ActiverecordToPoro::Converter.create(a_active_record_class,
+                                         load_source: a_custom_poro_class,
+                                         except: [:lock_version]
     )
   }
 
