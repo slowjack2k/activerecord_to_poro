@@ -1,10 +1,10 @@
 require 'integration_spec_helper'
 
-describe ActiverecordToPoro::Converter do
+describe ActiverecordToPoro::ObjectMapper do
 
   describe '.new' do
     subject{
-      ActiverecordToPoro::Converter
+      ActiverecordToPoro::ObjectMapper
     }
 
     it 'removes "except" attributes from default mapping' do
@@ -15,22 +15,21 @@ describe ActiverecordToPoro::Converter do
     it 'uses "only" attributes for default mapping' do
       object = subject.create(User, only: :id)
       expect(object.attributes_for_default_mapping).to eq [:id]
-      binding.pry
     end
 
   end
 
   context 'instance methods' do
     subject!{
-      ActiverecordToPoro::Converter.create(User,  convert_associations: {roles: roles_converter, salutation: salutation_converter})
+      ActiverecordToPoro::ObjectMapper.create(User,  convert_associations: {roles: roles_converter, salutation: salutation_converter})
     }
 
     let(:roles_converter){
-      ActiverecordToPoro::Converter.create(Role)
+      ActiverecordToPoro::ObjectMapper.create(Role)
     }
 
     let(:salutation_converter){
-      ActiverecordToPoro::Converter.create(Salutation)
+      ActiverecordToPoro::ObjectMapper.create(Salutation)
     }
 
     let(:ar_object){
@@ -63,7 +62,7 @@ describe ActiverecordToPoro::Converter do
       end
 
       it 'fills an existing poro' do
-        poro_to_fill = subject.load_result_class.new
+        poro_to_fill = subject.load_result_source.new
         expect(subject.load(ar_object, poro_to_fill).object_id).to eq poro_to_fill.object_id
       end
 

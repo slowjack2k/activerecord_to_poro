@@ -7,11 +7,11 @@ feature "Map active record objects", %q{
 } do
 
   given(:mapper){
-    ActiverecordToPoro::Converter.create(a_active_record_class)
+    ActiverecordToPoro::ObjectMapper.create(a_active_record_class)
   }
 
   given(:mapper_with_custom_source){
-    ActiverecordToPoro::Converter.create(a_active_record_class,
+    ActiverecordToPoro::ObjectMapper.create(a_active_record_class,
                                          load_source: custom_poro_class,
                                          except: [:lock_version]
     )

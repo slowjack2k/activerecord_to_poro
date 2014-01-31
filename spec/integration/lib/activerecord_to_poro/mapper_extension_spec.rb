@@ -21,17 +21,13 @@ describe ActiverecordToPoro::MapperExtension do
         :reverse_lazy_loading=>false,
         :is_collection=>true,
         :lazy_loading=>nil,
-        :object_converter=>mapper,
-        :reverse_object_converter=>mapper
+        :object_converter=>converter,
+        :reverse_object_converter=>converter
     }
   }
 
-  let(:mapper){
-    double("mapper")
-  }
-
   let(:converter){
-    double("converter", mapper: mapper)
+    double("converter")
   }
 
   describe '#association_rule' do
@@ -76,10 +72,10 @@ describe ActiverecordToPoro::MapperExtension do
       expected_params = default_expected_params.merge(
           reverse_converter: kind_of(Proc),
           reverse_object_converter: nil,
-          :to=>:permissions,
-          :from=>:permissions,
-          :reverse_to=>:permissions,
-          :reverse_from=>:permissions,
+          to: :permissions,
+          from: :permissions,
+          reverse_to: :permissions,
+          reverse_from: :permissions,
       )
 
       expect(subject).to receive(:rule).with expected_params
