@@ -27,14 +27,14 @@ module ActiverecordToPoro
         options[:converter] = noop
         options[:object_converter] = nil
       else
-        options[:object_converter] = converter.mapper
+        options[:object_converter] = converter#.mapper
       end
 
       if reverse_converter.nil? ||  ActiverecordToPoro::MapperExtension.is_an_has_many_through(self.dump_result_source, from)
         options[:reverse_converter] = noop
         options[:reverse_object_converter] = nil
       else
-        options[:reverse_object_converter] =  reverse_converter.mapper
+        options[:reverse_object_converter] =  reverse_converter#.mapper
       end
 
       rule options

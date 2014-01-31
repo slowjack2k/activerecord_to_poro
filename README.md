@@ -48,27 +48,27 @@ end
 
 # You can convert them to poro's like this (automatic genereation of a poro class out of you'r AR class)
 
-roles_converter = ActiverecordToPoro::Converter.new(Role)
-salutation_converter = ActiverecordToPoro::Converter.new(Salutation)
-user_converter = ActiverecordToPoro::Converter.new(User, convert_associations: {roles: roles_converter, salutation: salutation_converter})
+roles_converter = ActiverecordToPoro::ObjectMapper.create(Role)
+salutation_converter = ActiverecordToPoro::ObjectMapper.create(Salutation)
+user_converter = ActiverecordToPoro::ObjectMapper.create(User, convert_associations: {roles: roles_converter, salutation: salutation_converter})
 
 
 poro = user_converter.load(User.first)
 
 # Or with you'r custom class
 
-roles_converter = ActiverecordToPoro::Converter.new(Role,
-                                                    load_source: YourPoroClass
-                                                    )
+roles_converter = ActiverecordToPoro::ObjectMapper.create(Role,
+                                                          load_source: YourPoroClass
+                                                         )
 
 
 # default 1:1 mapping only or except
 
-roles_converter = ActiverecordToPoro::Converter.new(Role,
+roles_converter = ActiverecordToPoro::ObjectMapper.create(Role,
                                                     except: [:lock_version]
                                                     )
 
-roles_converter = ActiverecordToPoro::Converter.new(Role,
+roles_converter = ActiverecordToPoro::ObjectMapper.create(Role,
                                                     only: [:name]
                                                     )
 
