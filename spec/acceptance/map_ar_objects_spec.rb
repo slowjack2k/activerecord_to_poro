@@ -7,13 +7,13 @@ feature "Map active record objects", %q{
 } do
 
   given(:mapper){
-    ActiverecordToPoro::Converter.new(a_active_record_class)
+    ActiverecordToPoro::ObjectMapper.create(a_active_record_class)
   }
 
   given(:mapper_with_custom_source){
-    ActiverecordToPoro::Converter.new(a_active_record_class,
-                                      load_source: custom_poro_class,
-                                      except: [:lock_version]
+    ActiverecordToPoro::ObjectMapper.create(a_active_record_class,
+                                         load_source: custom_poro_class,
+                                         except: [:lock_version]
     )
   }
 
@@ -35,7 +35,7 @@ feature "Map active record objects", %q{
 
   scenario "creates an ActiveRecord object from a poro object" do
     poro = mapper.load(a_active_record_object)
-    expect(mapper.dump(poro)).to eq a_active_record_object
+    expect(mapper.dump(poro).attributes).to eq a_active_record_object.attributes
   end
 
   scenario "use my own source class for converting ActiveRecord objects" do

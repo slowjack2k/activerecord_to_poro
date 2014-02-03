@@ -1,19 +1,19 @@
 require 'integration_spec_helper'
 
-describe ActiverecordToPoro::Converter do
+describe ActiverecordToPoro::ObjectMapper do
 
   describe '.new' do
     subject{
-      ActiverecordToPoro::Converter
+      ActiverecordToPoro::ObjectMapper
     }
 
     it 'removes "except" attributes from default mapping' do
-      object = subject.new(User, except: :lock_version)
+      object = subject.create(User, except: :lock_version)
       expect(object.attributes_for_default_mapping).not_to include :lock_version
     end
 
     it 'uses "only" attributes for default mapping' do
-      object = subject.new(User, only: :id)
+      object = subject.create(User, only: :id)
       expect(object.attributes_for_default_mapping).to eq [:id]
     end
 
@@ -21,15 +21,15 @@ describe ActiverecordToPoro::Converter do
 
   context 'instance methods' do
     subject!{
-      ActiverecordToPoro::Converter.new(User,  convert_associations: {roles: roles_converter, salutation: salutation_converter})
+      ActiverecordToPoro::ObjectMapper.create(User,  convert_associations: {roles: roles_converter, salutation: salutation_converter})
     }
 
     let(:roles_converter){
-      ActiverecordToPoro::Converter.new(Role)
+      ActiverecordToPoro::ObjectMapper.create(Role)
     }
 
     let(:salutation_converter){
-      ActiverecordToPoro::Converter.new(Salutation)
+      ActiverecordToPoro::ObjectMapper.create(Salutation)
     }
 
     let(:ar_object){
@@ -50,7 +50,6 @@ describe ActiverecordToPoro::Converter do
 
       it 'sets metadata for loaded objects' do
         expect(loaded_poro_object._metadata).not_to be_nil
-        expect(loaded_poro_object._metadata.primary_key_value).to eq ar_object.id
       end
 
       it 'converts also associated objects' do
@@ -62,18 +61,19 @@ describe ActiverecordToPoro::Converter do
         subject.load(ar_object)
       end
 
+      it 'fills an existing poro' do
+        poro_to_fill = subject.load_result_source.new
+        expect(subject.load(ar_object, poro_to_fill).object_id).to eq poro_to_fill.object_id
+      end
+
     end
 
     describe '#dump' do
-      it 'creates an ActiveRecordObject' do
+      it 'creates an ActiveRecord object' do
         expect(subject.dump(loaded_poro_object)).to be_kind_of ActiveRecord::Base
       end
 
-      it 'sets the primary key when it existed before' do
-        expect(subject.dump(loaded_poro_object).id).to eq ar_object.id
-      end
-
-      it 'sets new_record to false when it is an existing record' do
+      it 'loads the object from database when primary key and value are given in metadata' do
         expect(subject.dump(loaded_poro_object).new_record?).to be_falsy
       end
 
@@ -81,6 +81,11 @@ describe ActiverecordToPoro::Converter do
         count_roles = ar_object.roles.size
 
         expect(subject.dump(loaded_poro_object).roles.size).to eq count_roles
+      end
+
+      it 'fills an existing ActiveRecord object' do
+        new_ar_object = User.new
+        expect(subject.dump(loaded_poro_object, new_ar_object).object_id).to eq new_ar_object.object_id
       end
     end
 

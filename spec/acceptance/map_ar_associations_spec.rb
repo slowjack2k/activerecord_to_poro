@@ -7,19 +7,29 @@ feature 'Map active record associations', %q{
 } do
 
   given!(:mapper){
-    ActiverecordToPoro::Converter.new(a_active_record_class, convert_associations: {roles: roles_converter, salutation: salutation_converter} )
+    ActiverecordToPoro::ObjectMapper.create(a_active_record_class, convert_associations: {roles: roles_converter,
+                                                                                       salutation: salutation_converter}).tap do |m|
+      quirk_converter = permissions_converter
+
+      m.extend_mapping do
+        association_rule to: :permissions,
+                         converter: quirk_converter,
+                         reverse_converter: nil,
+                         lazy_loading: true
+      end
+    end
   }
 
   given!(:roles_converter){
-    ActiverecordToPoro::Converter.new(Role)
+    ActiverecordToPoro::ObjectMapper.create(Role, convert_associations: {permissions: permissions_converter})
   }
 
   given!(:permissions_converter){
-    ActiverecordToPoro::Converter.new(Permission)
+    ActiverecordToPoro::ObjectMapper.create(Permission, name: :permissions_converter)
   }
 
   given!(:salutation_converter){
-    ActiverecordToPoro::Converter.new(Salutation)
+    ActiverecordToPoro::ObjectMapper.create(Salutation)
   }
 
   given!(:a_active_record_class){
@@ -53,22 +63,25 @@ feature 'Map active record associations', %q{
   }
 
   given(:mapper_with_custom_source){
-    ActiverecordToPoro::Converter.new(a_active_record_class,
-                                      load_source: a_custom_poro_class,
-                                      except: [:lock_version]
+    ActiverecordToPoro::ObjectMapper.create(a_active_record_class,
+                                         load_source: a_custom_poro_class,
+                                         except: [:lock_version]
     )
   }
 
 
   scenario "creates a poro out of an ActiveRecord object with associations set" do
     expect(mapper.load(a_active_record_object).roles.size).to eq 2
+    expect(mapper.load(a_active_record_object).permissions.size).to eq 3
     expect(mapper.load(a_active_record_object).salutation.name).to eq "Mister"
   end
 
   scenario "creates an ActiveRecord object from a poro object with associations set" do
     poro = mapper.load(a_active_record_object)
     expect(mapper.dump(poro).roles.size).to eq 2
-    expect(mapper.dump(poro).permissions.size).to eq 3
+
+    expect(mapper.dump(poro).roles.first.permissions.size).to eq 2
+    expect(mapper.dump(poro).roles.last.permissions.size).to eq 1
   end
 
   scenario "lazy loads associated objects" do
@@ -79,13 +92,12 @@ feature 'Map active record associations', %q{
   end
 
   scenario 'add custom association mappings' do
-    quirk_converter = permissions_converter
 
     mapper_with_custom_source.extend_mapping do
 
       association_rule to: :some_other_name,
                        from: :permissions,
-                       converter: quirk_converter,
+                       converter: :permissions_converter,
                        lazy_loading: true
 
     end

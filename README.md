@@ -48,27 +48,29 @@ end
 
 # You can convert them to poro's like this (automatic genereation of a poro class out of you'r AR class)
 
-roles_converter = ActiverecordToPoro::Converter.new(Role)
-salutation_converter = ActiverecordToPoro::Converter.new(Salutation)
-user_converter = ActiverecordToPoro::Converter.new(User, convert_associations: {roles: roles_converter, salutation: salutation_converter})
+ActiverecordToPoro::ObjectMapper.create(Role, name: :roles_converter)
+ActiverecordToPoro::ObjectMapper.create(Salutation, name: :salutation_converter)
+user_converter = ActiverecordToPoro::ObjectMapper.create(User,
+                                                         name: :user_converter,
+                                                         convert_associations: {roles: :roles_converter, salutation: :salutation_converter})
 
 
 poro = user_converter.load(User.first)
 
-# Or with you'r custom class
+# Or with you'r custom poro class
 
-roles_converter = ActiverecordToPoro::Converter.new(Role,
-                                                    load_source: YourPoroClass
-                                                    )
+roles_converter = ActiverecordToPoro::ObjectMapper.create(Role,
+                                                          load_source: YourPoroClass
+                                                         )
 
 
 # default 1:1 mapping only or except
 
-roles_converter = ActiverecordToPoro::Converter.new(Role,
+roles_converter = ActiverecordToPoro::ObjectMapper.create(Role,
                                                     except: [:lock_version]
                                                     )
 
-roles_converter = ActiverecordToPoro::Converter.new(Role,
+roles_converter = ActiverecordToPoro::ObjectMapper.create(Role,
                                                     only: [:name]
                                                     )
 
@@ -83,7 +85,7 @@ end
 roles_converter.extend_mapping do
   association_rule to: association_name,
                    lazy_loading: true,
-                   converter: association_converter
+                   converter: association_converter #or :association_converter when you'r converter has a name
                    # optional
                    # from: ...,
                    # reverse_to: ...,
