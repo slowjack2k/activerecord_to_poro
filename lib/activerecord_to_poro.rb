@@ -1,4 +1,5 @@
 require 'yaoc'
+require 'equalizer'
 require 'activerecord_to_poro/version'
 require 'activerecord_to_poro/metadata_enabled'
 require 'activerecord_to_poro/metadata_enabled_ar'
