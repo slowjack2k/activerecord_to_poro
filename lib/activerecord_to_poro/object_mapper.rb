@@ -23,6 +23,7 @@ module ActiverecordToPoro
                     use_lazy_loading=true,
                     except: nil,
                     only: nil,
+                    name: nil,
                     load_source: DefaultPoroClassBuilder.new(ar_class).(),
                     convert_associations: {})
 
@@ -37,6 +38,8 @@ module ActiverecordToPoro
 
         new_mapper.add_default_mapping_for_current_class
         new_mapper.add_mapping_for_associations
+
+        new_mapper.register_as(name)
       end
     end
 

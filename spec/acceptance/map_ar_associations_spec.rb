@@ -25,7 +25,7 @@ feature 'Map active record associations', %q{
   }
 
   given!(:permissions_converter){
-    ActiverecordToPoro::ObjectMapper.create(Permission)
+    ActiverecordToPoro::ObjectMapper.create(Permission, name: :permissions_converter)
   }
 
   given!(:salutation_converter){
@@ -92,13 +92,12 @@ feature 'Map active record associations', %q{
   end
 
   scenario 'add custom association mappings' do
-    quirk_converter = permissions_converter
 
     mapper_with_custom_source.extend_mapping do
 
       association_rule to: :some_other_name,
                        from: :permissions,
-                       converter: quirk_converter,
+                       converter: :permissions_converter,
                        lazy_loading: true
 
     end
