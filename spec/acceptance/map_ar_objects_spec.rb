@@ -35,7 +35,7 @@ feature "Map active record objects", %q{
 
   scenario "creates an ActiveRecord object from a poro object" do
     poro = mapper.load(a_active_record_object)
-    expect(mapper.dump(poro).attributes.except("id")).to eq a_active_record_object.attributes.except("id")
+    expect(mapper.dump(poro).attributes).to eq a_active_record_object.attributes
   end
 
   scenario "use my own source class for converting ActiveRecord objects" do

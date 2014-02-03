@@ -1,4 +1,11 @@
 module ActiverecordToPoro
+
+  module MappingToArClass
+    def call(pre_created_object=nil)
+      self.target_source._from_attrs_with_metadata(to_hash_or_array(), pre_created_object)
+    end
+  end
+
   class ObjectMapper < Yaoc::ObjectMapper
     include ColumnHelper
     include ActiverecordToPoro::MapperExtension
@@ -16,10 +23,8 @@ module ActiverecordToPoro
                     use_lazy_loading=true,
                     except: nil,
                     only: nil,
-                    load_source: nil,
+                    load_source: DefaultPoroClassBuilder.new(ar_class).(),
                     convert_associations: {})
-
-      load_source ||= DefaultPoroClassBuilder.new(ar_class).()
 
       new(load_source, ar_class).tap do|new_mapper|
         new_mapper.fetcher(:public_send)
@@ -49,8 +54,16 @@ module ActiverecordToPoro
 
     def load_result_source=(new_load_result)
       @load_result_source = new_load_result.tap do |source|
-        unless source.respond_to? :_metadata
+        unless source.instance_methods.include?(:_metadata)
           source.send(:include, MetadataEnabled)
+        end
+      end
+    end
+
+    def dump_result_source=(new_dump_result)
+      @dump_result_source = new_dump_result.tap do |source|
+        unless source.respond_to? :_from_attrs_with_metadata
+          source.send(:extend, MetadataEnabledAr)
         end
       end
     end
@@ -61,7 +74,7 @@ module ActiverecordToPoro
 
         rule to: :_set_metadata,
              converter: ->(source, result){ self.class.fill_result_with_value(result, :_set_metadata_from_ar, source) },
-             reverse_converter: ->(source, result){ result }
+             reverse_converter: ->(source, result){ self.class.fill_result_with_value(result, :_set_metadata_to_ar, source._metadata) }
       end
     end
 
@@ -76,5 +89,12 @@ module ActiverecordToPoro
       end
     end
 
+    def reverse_converter(fetch_able=nil)
+      reverse_converter_builder.converter(fetch_able, dump_result_source).tap do |new_converter|
+        new_converter.extend(MappingToArClass)
+      end
+    end
+
   end
+
 end
