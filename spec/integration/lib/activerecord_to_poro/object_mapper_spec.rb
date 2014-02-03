@@ -73,6 +73,10 @@ describe ActiverecordToPoro::ObjectMapper do
         expect(subject.dump(loaded_poro_object)).to be_kind_of ActiveRecord::Base
       end
 
+      it 'loads the object from database when primary key and value are given in metadata' do
+        expect(subject.dump(loaded_poro_object).new_record?).to be_falsy
+      end
+
       it 'converts also associated objects' do
         count_roles = ar_object.roles.size
 

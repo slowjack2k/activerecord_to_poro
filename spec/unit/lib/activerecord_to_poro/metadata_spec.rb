@@ -30,7 +30,8 @@ describe ActiverecordToPoro::Metadata do
 
       expect(subject.to_hash).to include( source_objects_info: [{class_name: "MyNameIsStruct",
                                                                  primary_key: {:column=>"id", :value=>1},
-                                                                 object_id: ar_object_1.object_id
+                                                                 object_id: ar_object_1.object_id,
+                                                                 lock_version: nil
                                                                 }])
     end
 
@@ -42,12 +43,20 @@ describe ActiverecordToPoro::Metadata do
     end
 
     it "adds the same object only once" do
-      subject.initialize_from_ar(ar_object_1)
-      subject.initialize_from_ar(ar_object_1)
+      subject.initialize_from_ar(ar_class.new(1))
+      subject.initialize_from_ar(ar_class.new(1))
 
       expect(subject.to_hash[:source_objects_info].size).to eq 1
     end
 
+  end
+
+  describe '#for_ar_class' do
+    it 'returns metadata for a ActiveRecord class' do
+      subject.initialize_from_ar(ar_object_1)
+
+      expect(subject.for_ar_class(ar_class.name).to_hash).to include({primary_key: {column: "id", value: 1}})
+    end
   end
 
 end
