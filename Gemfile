@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby "2.1"
+#ruby "2.1"
 
 # Specify your gem's dependencies in yaoc.gemspec
 gemspec
