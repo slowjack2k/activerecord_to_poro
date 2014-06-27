@@ -13,7 +13,8 @@ module ActiverecordToPoro
     attr_accessor :association_converters,
                   :use_lazy_loading,
                   :except_attributes,
-                  :only_attributes
+                  :only_attributes,
+                  :use_mass_assignment
 
     class << self
       private :new
@@ -24,10 +25,11 @@ module ActiverecordToPoro
                     except: nil,
                     only: nil,
                     name: nil,
+                    use_mass_assignment_constructor: true,
                     load_source: DefaultPoroClassBuilder.new(ar_class).(),
                     convert_associations: {})
 
-      new(load_source, ar_class).tap do|new_mapper|
+      new(load_source, ar_class, use_mass_assignment_constructor).tap do|new_mapper|
         new_mapper.fetcher(:public_send)
 
         new_mapper.association_converters = convert_associations
@@ -43,6 +45,11 @@ module ActiverecordToPoro
       end
     end
 
+    def initialize(load_result_source, dump_result_source, use_mass_assignment_constructor)
+      self.use_mass_assignment = use_mass_assignment_constructor
+      super(load_result_source, dump_result_source)
+    end
+
     alias_method :extend_mapping, :add_mapping
 
     def attributes_for_default_mapping
@@ -56,10 +63,20 @@ module ActiverecordToPoro
     end
 
     def load_result_source=(new_load_result)
-      @load_result_source = new_load_result.tap do |source|
-        unless source.instance_methods.include?(:_metadata)
-          source.send(:include, MetadataEnabled)
-        end
+      unless new_load_result.instance_methods.include?(:_metadata)
+        new_load_result.send(:include, MetadataEnabled)
+      end
+
+      if use_mass_assignment
+        @load_result_source = new_load_result
+      else
+        @load_result_source = ->(attrs){
+          new_load_result.new.tap do |entity|
+            attrs.each_pair do |key, value|
+              entity.public_send "#{key}=", value
+            end
+          end
+        }
       end
     end
 

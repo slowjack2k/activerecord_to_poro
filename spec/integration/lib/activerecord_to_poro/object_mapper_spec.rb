@@ -17,6 +17,24 @@ describe ActiverecordToPoro::ObjectMapper do
       expect(object.attributes_for_default_mapping).to eq [:id]
     end
 
+    it 'wraps the poro constructor if no massassignment is wanted' do
+
+      object = subject.create(User, only: :id, use_mass_assignment_constructor: false)
+      expect(object.load_result_source).to be_kind_of Proc
+    end
+
+    it 'wraps the poro constructor if no massassignment is wanted' do
+      result_class = Struct.new(:id)
+      object = subject.create(User, load_source: result_class, only: :id, use_mass_assignment_constructor: false)
+      expect(object.load_result_source).to be_kind_of Proc
+    end
+
+    it 'does not wrap the poro constructor if massassignment is wanted' do
+      result_class = Struct.new(:id)
+      object = subject.create(User, load_source: result_class, only: :id, use_mass_assignment_constructor: true)
+      expect(object.load_result_source).to be result_class
+    end
+
   end
 
   context 'instance methods' do
