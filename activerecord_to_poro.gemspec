@@ -45,8 +45,9 @@ Gem::Specification.new do |spec|
 
   # https://github.com/pry/pry-stack_explorer
   spec.add_development_dependency 'pry-stack_explorer'
-  # https://github.com/nixme/pry-debugger
-  spec.add_development_dependency 'pry-debugger'
+  # https://github.com/deivid-rodriguez/pry-byebug
+  # pre-debugger / debugger does not work with ruby 2.x
+  spec.add_development_dependency 'pry-byebug'
 
   # https://github.com/dkubb/equalizer
   spec.add_development_dependency 'equalizer'
