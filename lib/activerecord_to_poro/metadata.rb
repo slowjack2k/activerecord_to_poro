@@ -34,19 +34,24 @@ module ActiverecordToPoro
     end
 
     def for_ar_class(ar_class_name)
-      Set.new.find
       source_object_info.find(->{SourceObjectInfo.new}){|data|
         data.class_name == ar_class_name
       }
     end
 
     def set_source_info(ar_object)
-      self.source_object_info << SourceObjectInfo.new(class_name: ar_object.class.name,
-                                                      column: ar_object.class.primary_key,
-                                                      value: ar_object.send(ar_object.class.primary_key),
-                                                      object_id: ar_object.object_id,
-                                                      lock_version: ar_object.respond_to?(:lock_version) ? ar_object.lock_version : nil
-                                                     )
+      new_info = create_source_info(ar_object)
+      self.source_object_info.delete_if { |info| info == new_info }
+      self.source_object_info << new_info
+    end
+
+    def create_source_info(ar_object)
+      SourceObjectInfo.new(class_name: ar_object.class.name,
+                           column: ar_object.class.primary_key,
+                           value: ar_object.send(ar_object.class.primary_key),
+                           object_id: ar_object.object_id,
+                           lock_version: ar_object.respond_to?(:lock_version) ? ar_object.lock_version : nil
+      )
     end
 
     def to_hash

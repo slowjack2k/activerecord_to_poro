@@ -42,6 +42,20 @@ feature "Map active record objects", %q{
     expect(mapper_with_custom_source.load(a_active_record_object)).to be_kind_of custom_poro_class
   end
 
+  scenario 'updates "_metadata" of the poro after save ' do
+    poro = mapper.load(a_active_record_object)
+    old_lock_version = poro._metadata.for_ar_class(a_active_record_object).lock_version || 0
+    ar_object = mapper.dump(poro)
+
+    ar_object.email = "1_#{ar_object.email}"
+
+    ar_object.save!
+
+    expect(poro._metadata.for_ar_class(ar_object.class.name).lock_version).to eq old_lock_version + 1
+    expect(poro.lock_version).to eq old_lock_version + 1
+
+  end
+
   scenario 'extend default mapping' do
     mapper_with_custom_source.extend_mapping do
       rule to: :lock_version
