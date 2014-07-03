@@ -2,7 +2,11 @@ module ActiverecordToPoro
 
   module MappingToArClass
     def call(pre_created_object=nil)
-      self.target_source._from_attrs_with_metadata(to_hash_or_array(), pre_created_object)
+      self.target_source._from_attrs_with_metadata(to_hash_or_array(), pre_created_object).tap do |new_obj|
+
+        new_obj._referenced_poros << to_convert
+
+      end
     end
   end
 
@@ -82,7 +86,7 @@ module ActiverecordToPoro
 
     def dump_result_source=(new_dump_result)
       unless new_dump_result.respond_to? :_from_attrs_with_metadata
-        new_dump_result.send(:extend, MetadataEnabledAr)
+        new_dump_result.send(:include, MetadataEnabledAr)
       end
 
       @dump_result_source = new_dump_result
