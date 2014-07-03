@@ -81,11 +81,11 @@ module ActiverecordToPoro
     end
 
     def dump_result_source=(new_dump_result)
-      @dump_result_source = new_dump_result.tap do |source|
-        unless source.respond_to? :_from_attrs_with_metadata
-          source.send(:extend, MetadataEnabledAr)
-        end
+      unless new_dump_result.respond_to? :_from_attrs_with_metadata
+        new_dump_result.send(:extend, MetadataEnabledAr)
       end
+
+      @dump_result_source = new_dump_result
     end
 
     def add_default_mapping_for_current_class
