@@ -84,6 +84,17 @@ feature 'Map active record associations', %q{
     expect(mapper.dump(poro).roles.last.permissions.size).to eq 1
   end
 
+  scenario "updates an associated ActiveRecord object from a modified poro object" do
+    poro = mapper.load(a_active_record_object)
+    expect(mapper.dump(poro).roles.size).to eq 2
+
+    role_to_change = poro.roles.first
+    new_name = "#{role_to_change.name}_new"
+    role_to_change.name = new_name
+
+    expect(mapper.dump(poro).roles.first.name).to eq new_name
+  end
+
   scenario "lazy loads associated objects" do
     expect(a_active_record_object).not_to receive :salutation
     expect(a_active_record_object).not_to receive :roles
