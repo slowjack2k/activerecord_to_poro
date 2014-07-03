@@ -83,7 +83,12 @@ module ActiverecordToPoro
 
       def _record_from_metadata!(attrs)
         specific_metadata = _extract_metadata!(attrs)
-        _as_scope(specific_metadata.as_scope_hash).first
+
+        if respond_to?(:query_from_cache) && query_from_cache(specific_metadata.as_scope_hash)
+          query_from_cache(specific_metadata.as_scope_hash)
+        else
+          _as_scope(specific_metadata.as_scope_hash).first
+        end
       end
     end
 
