@@ -95,7 +95,25 @@ roles_converter.extend_mapping do
 end
 
 
+# Enable loading AciveRecord Objects from a cache, when the data for 
+# saving is needed
 
+
+class Salutation < ActiveRecord::Base
+  has_many :users, autosave: true
+  
+  after_find :add_to_cache
+  
+  def self.query_from_cache(query_attrs)        
+    found_obj = # find by primary key & lock_version from cache
+  end
+  
+  
+   def add_to_cache
+     # add self to a cache
+     true
+   end
+end
 
 
 ```
