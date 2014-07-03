@@ -2,7 +2,7 @@ require 'integration_spec_helper'
 
 describe ActiverecordToPoro::MetadataEnabledAr do
   subject{
-    User.extend ActiverecordToPoro::MetadataEnabledAr
+    User.send(:include, ActiverecordToPoro::MetadataEnabledAr)
     User
   }
 
