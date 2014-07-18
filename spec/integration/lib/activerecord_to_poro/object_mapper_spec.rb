@@ -39,7 +39,8 @@ describe ActiverecordToPoro::ObjectMapper do
 
   context 'instance methods' do
     subject!{
-      ActiverecordToPoro::ObjectMapper.create(User,  convert_associations: {roles: roles_converter, salutation: salutation_converter})
+      ActiverecordToPoro::ObjectMapper.create(User,  convert_associations: {roles: roles_converter,
+                                                                            salutation: salutation_converter})
     }
 
     let(:roles_converter){
@@ -84,6 +85,27 @@ describe ActiverecordToPoro::ObjectMapper do
         expect(subject.load(ar_object, poro_to_fill).object_id).to eq poro_to_fill.object_id
       end
 
+      it 'resets changes flag if a method is given, mass assignment not used and no prefilled object given' do
+        result_class = Struct.new(:id) do
+          def reset_changes_flag
+            @reset_changes = :called
+          end
+
+          def reset_changes
+            @reset_changes ||= :not_called
+          end
+        end
+        mapper = ActiverecordToPoro::ObjectMapper.create(User,
+                                                         load_source: result_class,
+                                                         only: :id,
+                                                         use_mass_assignment_constructor: false)
+
+
+        poro = mapper.load(ar_object)
+
+        expect(poro.reset_changes).to eq :called
+      end
+
     end
 
     describe '#dump' do
@@ -105,6 +127,7 @@ describe ActiverecordToPoro::ObjectMapper do
         new_ar_object = User.new
         expect(subject.dump(loaded_poro_object, new_ar_object).object_id).to eq new_ar_object.object_id
       end
+
     end
 
   end
