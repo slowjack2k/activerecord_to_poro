@@ -79,6 +79,8 @@ module ActiverecordToPoro
             attrs.each_pair do |key, value|
               entity.public_send "#{key}=", value
             end
+
+            entity.reset_changes_flag if entity.respond_to? :reset_changes_flag
           end
         }
       end
