@@ -14,7 +14,6 @@ module ActiverecordToPoro
     end
 
     def _update_poro_metadata
-
       _referenced_poros.each do |entity|
         entity._set_metadata_from_ar = self if entity.respond_to? :_set_metadata_from_ar=
 
@@ -39,7 +38,7 @@ module ActiverecordToPoro
 
         record.tap do |new_obj|
 
-          new_obj.attributes = attrs
+          new_obj.attributes = attrs || {}
 
           _patch_has_many_members(attrs, new_obj) unless new_obj.new_record?
         end
@@ -77,7 +76,7 @@ module ActiverecordToPoro
       end
 
       def _extract_metadata!(attrs)
-        metadata = (attrs || {}).delete(:_set_metadata_to_ar) { |*| Metadata.new }
+        metadata = (attrs || {}).delete(:_set_metadata_to_ar){ |*| Metadata.new }
         metadata.for_ar_class(self.name)
       end
 

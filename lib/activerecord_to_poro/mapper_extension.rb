@@ -44,14 +44,17 @@ module ActiverecordToPoro
     module_function
 
     def is_an_ar_collection?(ar_class, association_name)
-      (ar_class.reflections[association_name] &&
-       ar_class.reflections[association_name].collection?)
+      ref = reflection_for_association(ar_class, association_name)
+      (ref && ref.collection?)
     end
 
     def is_an_has_many_through(ar_class, association_name)
-      ar_class.reflections[association_name] &&
-      ar_class.reflections[association_name].macro == :has_many &&
-      ar_class.reflections[association_name].options.has_key?(:through)
+      ref = reflection_for_association(ar_class, association_name)
+      ref && ref.macro == :has_many && ref.options.has_key?(:through)
+    end
+
+    def reflection_for_association(ar_class, association_name)
+      ar_class.reflections[association_name.to_sym] || ar_class.reflections[association_name.to_s]
     end
 
   end
